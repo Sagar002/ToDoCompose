@@ -1,14 +1,15 @@
-package com.example.todolist.db
+package com.example.todolist.data.db
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.todolist.data.db.model.TodoItem
 
 @Database(entities = [TodoItem::class], version = 1, exportSchema = false)
-abstract class TodoDatabase : RoomDatabase() {
+public abstract class TodoDatabase : RoomDatabase() {
 
-    abstract fun todoDao(): TodoDao
+    public abstract fun todoDao(): TodoDao
 
     companion object {
         @Volatile

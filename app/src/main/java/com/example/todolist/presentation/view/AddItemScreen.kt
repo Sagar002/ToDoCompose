@@ -1,4 +1,4 @@
-package com.example.todolist.view
+package com.example.todolist.presentation.view
 
 import android.annotation.SuppressLint
 import android.os.Handler
@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,9 +30,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.todolist.db.TodoItem
-import com.example.todolist.viewmodel.TodoViewModel
-import kotlinx.coroutines.delay
+import com.example.todolist.data.db.model.TodoItem
+import com.example.todolist.presentation.viewmodel.TodoViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
