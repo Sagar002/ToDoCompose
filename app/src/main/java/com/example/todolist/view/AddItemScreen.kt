@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,13 +33,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.todolist.db.TodoItem
 import com.example.todolist.viewmodel.TodoViewModel
+import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnterNewItemScreen(todoViewModel: TodoViewModel, navigateBack: () -> Unit) {
     var newItemText by rememberSaveable { mutableStateOf("") }
+    var showErrorDialog by rememberSaveable { mutableStateOf(false) }
     var loading by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -53,7 +58,7 @@ fun EnterNewItemScreen(todoViewModel: TodoViewModel, navigateBack: () -> Unit) {
     ) {
         if (!loading)
             Column(
-                modifier = Modifier.padding(start = 20.dp, end = 20.dp , top = 120.dp)
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 120.dp)
             ) {
                 OutlinedTextField(
                     value = newItemText,
@@ -66,14 +71,18 @@ fun EnterNewItemScreen(todoViewModel: TodoViewModel, navigateBack: () -> Unit) {
 
                 Button(
                     onClick = {
-                        val newItem = TodoItem(title = newItemText)
-                        todoViewModel.insert(newItem)
-                        loading = true
-                        // Simulate loading delay
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            loading = false
-                            navigateBack()
-                        }, 3000)
+                        if (newItemText.equals("Error",true)) {
+                            showErrorDialog = true
+                        } else {
+                            val newItem = TodoItem(title = newItemText)
+                            todoViewModel.insert(newItem)
+                            loading = true
+                            // Simulate loading delay
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                loading = false
+                                navigateBack()
+                            }, 3000)
+                        }
                     },
                     enabled = newItemText.isNotBlank() && !loading,
                     modifier = Modifier.align(Alignment.End)
@@ -82,6 +91,9 @@ fun EnterNewItemScreen(todoViewModel: TodoViewModel, navigateBack: () -> Unit) {
                 }
 
             }
+        if (showErrorDialog){
+            showErrorPopup("Failed to add TODO",navigateBack)
+        }
         if (loading) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -93,8 +105,28 @@ fun EnterNewItemScreen(todoViewModel: TodoViewModel, navigateBack: () -> Unit) {
                         .align(Alignment.CenterHorizontally)
                         .background(Color.White)
                 )
-                Text(text = "Saving \"$newItemText\" to TODO", modifier = Modifier.padding(top = 10.dp))
+                Text(
+                    text = "Saving \"$newItemText\" to TODO",
+                    modifier = Modifier.padding(top = 10.dp)
+                )
             }
         }
     }
+}
+
+@Composable
+fun showErrorPopup(errorMessage: String,navigateBack: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = {  },
+        title = { Text(text = "Error") },
+        text = { Text(text = errorMessage) },
+        confirmButton = {
+            Button(
+                onClick = { navigateBack() }
+            ) {
+                Text("OK")
+            }
+
+        }
+    )
 }

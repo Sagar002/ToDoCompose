@@ -71,10 +71,11 @@ fun MainScreen(
             )
         }
     ) {
-        if (todoItems.isEmpty()) {
+        if (todoItems.isEmpty() && searchText.isEmpty()) {
             CenteredText()
         } else {
             MainScreenContent(todoItems = todoItems) {
+                searchText = it
                 if (it.isNotEmpty()) {
                     todoViewModel.searchTodoItems(it)
                 } else {
