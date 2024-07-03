@@ -23,6 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.todolist.db.TodoItem
 import com.example.todolist.viewmodel.TodoViewModel
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,8 +49,8 @@ fun MainScreen(
     todoViewModel: TodoViewModel,
     navigateToAddItem: () -> Unit
 ) {
-    val todoItems by todoViewModel.allItems.observeAsState(emptyList())
-    val searchTextState = remember { mutableStateOf("") }
+    val todoItems by todoViewModel.todoItems.collectAsState(emptyList())
+    var searchText by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -71,7 +74,13 @@ fun MainScreen(
         if (todoItems.isEmpty()) {
             CenteredText()
         } else {
-            MainScreenContent(todoItems = todoItems) { /* Handle item click */ }
+            MainScreenContent(todoItems = todoItems) {
+                if (it.isNotEmpty()) {
+                    todoViewModel.searchTodoItems(it)
+                } else {
+                    todoViewModel.getAll()
+                }
+            }
         }
     }
 }
@@ -100,7 +109,7 @@ fun PreviewCenteredText() {
 }
 
 @Composable
-fun MainScreenContent(todoItems: List<TodoItem>, onItemClick: (TodoItem) -> Unit) {
+fun MainScreenContent(todoItems: List<TodoItem>, onTextChange: (String) -> Unit) {
     var searchText by rememberSaveable { mutableStateOf("") }
     Column(
         modifier = Modifier
@@ -110,7 +119,10 @@ fun MainScreenContent(todoItems: List<TodoItem>, onItemClick: (TodoItem) -> Unit
         //not implemented
         OutlinedTextField(
             value = searchText,
-            onValueChange = { searchText = it },
+            onValueChange = {
+                searchText = it
+                onTextChange(searchText)
+            },
             label = { Text(text = "Search item") },
             modifier = Modifier.fillMaxWidth()
         )

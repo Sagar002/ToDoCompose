@@ -9,18 +9,24 @@ import androidx.lifecycle.viewModelScope
 import com.example.todolist.db.TodoDatabase
 import com.example.todolist.db.TodoItem
 import com.example.todolist.db.TodoRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class TodoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: TodoRepository
 
-    val allItems: LiveData<List<TodoItem>>
-
+    private val _todoItems = MutableStateFlow<List<TodoItem>>(emptyList())
+    val todoItems: StateFlow<List<TodoItem>> = _todoItems
     init {
         val todoDao = TodoDatabase.getDatabase(application).todoDao()
         repository = TodoRepository(todoDao)
-        allItems = repository.allItems.asLiveData()
+        viewModelScope.launch {
+            repository.allItems.collect {
+                _todoItems.value = it
+            }
+        }
     }
 
     fun insert(item: TodoItem) {
@@ -29,7 +35,19 @@ class TodoViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun searchItems(search: String): LiveData<List<TodoItem>> {
-        return repository.searchItems(search).asLiveData()
+    fun searchTodoItems(search: String) {
+        viewModelScope.launch {
+            repository.searchItems(search).collect {
+                _todoItems.value = it
+            }
+        }
     }
+    fun getAll() {
+        viewModelScope.launch {
+            repository.allItems.collect {
+                _todoItems.value = it
+            }
+        }
+    }
+
 }
