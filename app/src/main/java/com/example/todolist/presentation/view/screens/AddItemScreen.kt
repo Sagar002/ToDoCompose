@@ -1,4 +1,4 @@
-package com.example.todolist.presentation.view
+package com.example.todolist.presentation.view.screens
 
 import android.annotation.SuppressLint
 import android.os.Handler
@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.todolist.data.db.model.TodoItem
+import com.example.todolist.presentation.view.composable.ShowErrorPopup
 import com.example.todolist.presentation.viewmodel.TodoViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -90,7 +91,7 @@ fun EnterNewItemScreen(todoViewModel: TodoViewModel, navigateBack: () -> Unit) {
 
             }
         if (showErrorDialog){
-            showErrorPopup("Failed to add TODO",navigateBack)
+            ShowErrorPopup("Failed to add TODO",navigateBack)
         }
         if (loading) {
             Column(
@@ -112,19 +113,3 @@ fun EnterNewItemScreen(todoViewModel: TodoViewModel, navigateBack: () -> Unit) {
     }
 }
 
-@Composable
-fun showErrorPopup(errorMessage: String,navigateBack: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = {  },
-        title = { Text(text = "Error") },
-        text = { Text(text = errorMessage) },
-        confirmButton = {
-            Button(
-                onClick = { navigateBack() }
-            ) {
-                Text("OK")
-            }
-
-        }
-    )
-}

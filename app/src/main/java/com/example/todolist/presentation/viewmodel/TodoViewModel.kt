@@ -21,13 +21,13 @@ class TodoViewModel @Inject constructor(
 
     private val _todoItems = MutableStateFlow<List<TodoItem>>(emptyList())
     val todoItems: StateFlow<List<TodoItem>> = _todoItems
-    init {
+    /*init {
         viewModelScope.launch {
             repository.getAllItems().collect {
                 _todoItems.value = it
             }
         }
-    }
+    }*/
 
     fun insert(item: TodoItem) {
         viewModelScope.launch {
